@@ -3,13 +3,40 @@
     <script src="mySketch.js.js" type="text/javascript"></script><script src="https://cdn.jsdelivr.net/npm/p5@1.9.3/lib/p5.js" type="text/javascript"></script>
     </head>
 <body>
+    <div id="timer"></div>
     <button id="recordButton">Start Recording</button>
-    <button id="saveButton">Save to CSV</button>
 </body>
 <style>
+    button {
+            font-size: 24px;  /* 调整字體大小，放大按钮 */
+            padding: 15px 30px;  /* 增加按鈕內邊距 */
+            margin: 10px;  /* 增加按鈕之間的間距 */
+            position: fixed;  /* 固定定位 */
+            bottom: 20px;  /* 距離頁面底部距離px */
+            opacity: 1;  /* 按鈕透明度 */
+            transition: opacity 0.3s;  /* 過度效果 */
+        }
+
+    button:hover {
+            opacity: 1;  /* 滑鼠懸停時按鈕透明化 */
+        }
+    
+    #recordButton {
+            left: 20px;  /* 錄製按鈕距離左邊距離px */
+        }
+
+    #timer {
+            position: fixed;
+            bottom: 60px;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            color: white;
+        }
+    
     html,body{
-        margin: 0;
-        overflow;
-    }
+            margin: 0;
+            overflow;
+        }
 </style>
 </html>

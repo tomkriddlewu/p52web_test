@@ -1,19 +1,20 @@
 let coordinate = [];
 let recording = false;
+let timerInterval;
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 	background(0);
-	document.getElementById('recordButton').addEventListener('click', toggleRecording);
-    document.getElementById('saveButton').addEventListener('click', saveToCSV);
+
+	document.getElementById('recordButton').addEventListener('click', startRecording);
 }
 
 function draw() {
-	// background(0, 10);
+	background(0, 10);
 	
-	// if(frameCount %5 == 0){
-	// 	background(0, 15);
-	// };
+	if(frameCount %5 == 0){
+		background(0, 15);
+	};
 	
 	noStroke();
 	fill(mouseX/4, mouseY/4, random(255), 150);
@@ -26,40 +27,37 @@ function draw() {
     }
 }
 
-// function keyPressed() {
-//     if (key === 'k' || key === 'K') {
-//         recording = !recording;
-//         if (recording) {
-//             console.log("開始記錄");
-//         } else {
-//             console.log("停止紀錄");
-//         }
-//     }
-//     if (key === 's' || key === 'S') {
-//         saveToCSV();
-//     }
-// }
 
-function toggleRecording() {
-	recording = !recording;
-	const recordButton = document.getElementById('recordButton');
-	if (recording) {
-		recordButton.textContent = 'Stop Recording';
-		console.log("開始記錄");
-	} else {
-		recordButton.textContent = 'Start Recording';
-		console.log("開始記錄");
-	}
+function startRecording() {
+	recording = true;
+            const recordButton = document.getElementById('recordButton');
+            recordButton.style.display = 'none';
+
+            let countdown = 10;
+            const timer = document.getElementById('timer');
+            timer.textContent = countdown;
+
+            timerInterval = setInterval(() => {
+                countdown--;
+                timer.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(timerInterval);
+                    recording = false;
+                    timer.textContent = '';
+                    saveToCSV();
+                }
+            }, 1000);
 }
 
 function saveToCSV(){
+	// 生成CSV內容
 	let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "X,Y\n";
     coordinate.forEach(coord => {
         csvContent += coord.join(",") + "\n";
     });
     
-
+	// 觸發下載
     let encodedUri = encodeURI(csvContent);
     let link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -67,4 +65,9 @@ function saveToCSV(){
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+	// 重製變數
+	coordinates = [];
+    recording = false;
+    document.getElementById('recordButton').style.display = 'block';
 }
