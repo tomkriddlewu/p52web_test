@@ -63,7 +63,7 @@ class Particle {
     display() {
         fill(this.color);
         noStroke();
-        ellipse(this.pos.x, this.pos.y, 1, 1);
+        ellipse(this.pos.x, this.pos.y, 1.3, 1.3);
     }
 }
 
@@ -78,7 +78,7 @@ function setup() {
     for (let i = 0; i < 6000; i++) {
         let r = int(43);
         let g = int(119);
-        let b = int(random(60) + 120);
+        let b = int(random(60) + 160);
         let col = color(r, g, b);
         particles.push(new Particle(random(width), random(height), col));
     }
