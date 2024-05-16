@@ -12,7 +12,7 @@ class Particle {
         this.acc = createVector(0, 0);
         this.maxSpeed = 5;
         this.maxForce = 0.5;
-        this.drag = 0.97;
+        this.drag = 0.97; // 摩擦力
         this.color = col;
     }
 
@@ -21,6 +21,7 @@ class Particle {
     }
 
     applyMouseForce(mx, my) {
+        // 計算位置向量
         let mousePos = createVector(mx, my);
         let dirFromMouse = p5.Vector.sub(this.pos, mousePos); 
         let distFromMouse = dirFromMouse.mag(); 
@@ -28,6 +29,7 @@ class Particle {
         let dirToOrig = p5.Vector.sub(this.originalPos, this.pos);
         let distFromOrig = dirToOrig.mag();
 
+        // 斥力
         if (distFromMouse < 100) {
             dirFromMouse.normalize();
             let forceMagnitude = this.maxForce * (1 - distFromMouse / 100);
@@ -36,11 +38,11 @@ class Particle {
         }
 
         // 吸引力
-        if (distFromOrig > 120) {
+        // if (distFromOrig > 120) {
             dirToOrig.normalize();
-            let attractionForce = dirToOrig.mult(0.03 * distFromOrig);
+            let attractionForce = dirToOrig.mult(0.0008 * distFromOrig);
             this.applyForce(attractionForce);
-        }
+        // }
     }
 
     update() {
@@ -95,6 +97,10 @@ function draw() {
         particle.applyMouseForce(mouseX, mouseY);
         particle.update();
         particle.display();
+    }
+
+    if (recording = true){
+        coordinate.push([mouseX, mouseY]);
     }
 }
 
