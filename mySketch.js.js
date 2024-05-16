@@ -38,11 +38,9 @@ class Particle {
         }
 
         // 吸引力
-        // if (distFromOrig > 120) {
-            dirToOrig.normalize();
-            let attractionForce = dirToOrig.mult(0.0008 * distFromOrig);
-            this.applyForce(attractionForce);
-        // }
+        dirToOrig.normalize();
+        let attractionForce = dirToOrig.mult(0.0008 * distFromOrig);
+        this.applyForce(attractionForce);
     }
 
     update() {
@@ -52,6 +50,7 @@ class Particle {
         
         this.vel.mult(this.drag);
 
+        // 歸位
         let distanceToOriginal = p5.Vector.dist(this.pos, this.originalPos);
         if (distanceToOriginal < 0.15) {
             this.pos = this.originalPos.copy();
@@ -103,8 +102,6 @@ function draw() {
         coordinate.push([mouseX, mouseY]);
     }
 }
-
-
 
 function startRecording() {
 	recording = true;
