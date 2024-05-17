@@ -3,6 +3,13 @@ let recording = false;
 let saveData = false;
 let timerInterval;
 let particles = [];
+let startTime;
+let duration = 10000;
+let timeInterval;
+let centerX, centerY, radius;
+let currentTrail = 1;
+let particleTrail = []; 
+let csvData;
 
 class Particle {
     constructor(x, y, col) {
@@ -32,7 +39,7 @@ class Particle {
         // 斥力
         if (distFromMouse < 100) {
             dirFromMouse.normalize();
-            let forceMagnitude = this.maxForce * (1 - distFromMouse / 100);
+            let forceMagnitude = this.maxForce * (1 - distFromMouse / 180);
             let force = dirFromMouse.mult(forceMagnitude);
             this.applyForce(force);
         }
@@ -76,20 +83,33 @@ function setup() {
     document.getElementById('saveButton').addEventListener('click', saveToCSV);
 
     //生成點粒子
+    // for (let i = 0; i < 6000; i++) {
+    //     let r = int(43);
+    //     let g = int(119);
+    //     let b = int(random(60) + 160);
+    //     let col = color(r, g, b);
+    //     particles.push(new Particle(random(width), random(height), col));
+    // }
+
+    centerX = width / 2;
+    centerY = height / 2;
+    radius = 450;
+
     for (let i = 0; i < 6000; i++) {
-        let r = int(43);
-        let g = int(119);
-        let b = int(random(60) + 160);
-        let col = color(r, g, b);
-        particles.push(new Particle(random(width), random(height), col));
+        let angle = random(TWO_PI);
+        let r = radius * sqrt(random());
+        let x = centerX + r * cos(angle);
+        let y = centerY + r * sin(angle);
+        let col = color(43, 119, random(60) + 160);
+        particles.push(new Particle(x, y, col));
     }
 }
 
 function draw() {
-	background(0, 15);
+	background(0, 25);
 
     if (frameCount %15 == 0){
-        background(0, 50);
+        background(0, 70);
     }
 	
     for (let particle of particles) {
@@ -99,55 +119,107 @@ function draw() {
     }
 
     if (recording = true){
+
+        // Calculate elapsed time
+        let elapsedTime = millis() - startTime;
+
+        // Calculate normalized time (0 to 1)
+        let t = elapsedTime / duration;
+
+        // Calculate spiral position
+        let radius = lerp(400, 90, t);
+        let angle = TWO_PI * 10 * t; // 10 full rotations in 10 seconds
+
+        // Calculate x and y based on radius and angle
+        let x = radius * sin(angle) + width / 2;
+        let y = radius * cos(angle) + height / 2;
+
+        // Draw the circle
+        fill(100, 220, 62);
+        circle(x, y, 10);
+
         coordinate.push([mouseX, mouseY]);
+
+        if (elapsedTime > duration) {
+            recording = false;
+            document.getElementById('saveButton').style.display = 'block';
+            noLoop();
+        }
     }
+
+    fill(226, 61, 61);
+    circle(mouseX, mouseY, 10);
 }
 
 function startRecording() {
 	recording = true;
-            const recordButton = document.getElementById('recordButton');
-            const saveButton = document.getElementById('saveButton');
-            recordButton.style.display = 'none';
-            saveButton.style.display = 'none';
+    startTime = millis();
+    coordinate = [];
+    particleTrail[currentTrail] = [];
+    loop(); 
+
+    const recordButton = document.getElementById('recordButton');
+    const saveButton = document.getElementById('saveButton');
+    recordButton.style.display = 'none';
+    saveButton.style.display = 'none';
+    
+
+    //  增加計時器
+    let countdown = 10;
+    const timer = document.getElementById('timer');
+    timer.textContent = countdown;
+    timerInterval = setInterval(() => {
+        countdown--;
+        timer.textContent = countdown;
+        if (countdown <= 0) {
+            clearInterval(timerInterval);
+            recording = false;
+            timer.textContent = '';
+            saveButton.style.display = 'block';
+
+            // // 生成CSV內容
+            // let csvContent = "data:text/csv;charset=utf-8,";
+            // csvContent += "MouseX,MouseY\n";
+            // coordinate.forEach(coord => {
+            //     csvContent += coord.join(",") + "\n";
+            // });
+            // csvContent += "\n";
+            // csvContent += "Trail" + currentTrail + " ParticleX, ParticleY\n";
+            // coordinate.forEach(coord => {
+            // csvContent += trail.join(",") + "\n";
             
+            csvData = "data:text/csv;charset=utf-8,";
+            csvData += "MouseX,MouseY\n";
+            coordinate.forEach(coord => {
+                csvData += coord.join(",") + "\n";
+            });
+            csvData += "\n";
+            csvData += "Trail " + currentTrail + " ParticleX,ParticleY\n"; // 添加轨迹号到标题中
+            particleTrail[currentTrail].forEach(trail => {
+                csvData += trail.join(",") + "\n";
+            });
+        }
+    }, 1000);
 
-            //  增加計時器
-            let countdown = 10;
-            const timer = document.getElementById('timer');
-            timer.textContent = countdown;
-
-            timerInterval = setInterval(() => {
-                countdown--;
-                timer.textContent = countdown;
-                if (countdown <= 0) {
-                    clearInterval(timerInterval);
-                    recording = false;
-                    timer.textContent = '';
-                    saveButton.style.display = 'block';
-                }
-            }, 1000);
+    // 重置變數
+    coordinates = [];
+    currentTrail++;
+    recording = false;
+    document.getElementById('recordButton').style.display = 'block';
 }
 
-function saveToCSV(){
-	// 生成CSV內容
-	let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "X,Y\n";
-    coordinate.forEach(coord => {
-        csvContent += coord.join(",") + "\n";
-    });
-    
+function saveToCSV(){ 
 	// 觸發下載
-    let encodedUri = encodeURI(csvContent);
+    // let encodedUri = encodeURI(csvContent);
+
+    let encodedUri = encodeURI(csvData);
     let link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "coordinates.csv");
+    link.setAttribute("download", "data.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-	// 重置變數
-	coordinates = [];
-    recording = false;
+    currentTrail = [];
     saveData = false;
-    document.getElementById('recordButton').style.display = 'block';
 }
