@@ -8,8 +8,8 @@ let duration = 10000;
 let timeInterval;
 let centerX, centerY, radius;
 let currentTrail = 1;
-let particleTrail = []; 
-let csvData;
+let csvData = [];
+let maxTrail = 30;
 
 class Particle {
     constructor(x, y, col) {
@@ -71,7 +71,7 @@ class Particle {
     display() {
         fill(this.color);
         noStroke();
-        ellipse(this.pos.x, this.pos.y, 1.3, 1.3);
+        ellipse(this.pos.x, this.pos.y, 2.5, 2.5);
     }
 }
 
@@ -106,7 +106,7 @@ function setup() {
 }
 
 function draw() {
-	background(0, 25);
+	background(0, 40);
 
     if (frameCount %15 == 0){
         background(0, 70);
@@ -131,14 +131,14 @@ function draw() {
         let angle = TWO_PI * 10 * t; // 10 full rotations in 10 seconds
 
         // Calculate x and y based on radius and angle
-        let x = radius * sin(angle) + width / 2;
-        let y = radius * cos(angle) + height / 2;
+        let guideX = radius * sin(angle) + width / 2;
+        let guideY = radius * cos(angle) + height / 2;
 
-        // Draw the circle
+        // Draw the rehibitation circle
         fill(100, 220, 62);
-        circle(x, y, 10);
+        circle(guideX, guideY, 15);
 
-        coordinate.push([mouseX, mouseY]);
+        coordinate.push([guideX, guideY, mouseX, mouseY]);
 
         if (elapsedTime > duration) {
             recording = false;
@@ -148,14 +148,12 @@ function draw() {
     }
 
     fill(226, 61, 61);
-    circle(mouseX, mouseY, 10);
+    circle(mouseX, mouseY, 15);
 }
 
 function startRecording() {
 	recording = true;
     startTime = millis();
-    coordinate = [];
-    particleTrail[currentTrail] = [];
     loop(); 
 
     const recordButton = document.getElementById('recordButton');
@@ -168,58 +166,59 @@ function startRecording() {
     let countdown = 10;
     const timer = document.getElementById('timer');
     timer.textContent = countdown;
+    
     timerInterval = setInterval(() => {
         countdown--;
         timer.textContent = countdown;
+
         if (countdown <= 0) {
             clearInterval(timerInterval);
             recording = false;
             timer.textContent = '';
             saveButton.style.display = 'block';
+            document.getElementById('recordButton').style.display = 'block';
 
-            // // 生成CSV內容
-            // let csvContent = "data:text/csv;charset=utf-8,";
-            // csvContent += "MouseX,MouseY\n";
-            // coordinate.forEach(coord => {
-            //     csvContent += coord.join(",") + "\n";
-            // });
-            // csvContent += "\n";
-            // csvContent += "Trail" + currentTrail + " ParticleX, ParticleY\n";
-            // coordinate.forEach(coord => {
-            // csvContent += trail.join(",") + "\n";
+            if (!csvData[currentTrail]) {
+                csvData[currentTrail] = [];
+            }
             
-            csvData = "data:text/csv;charset=utf-8,";
-            csvData += "MouseX,MouseY\n";
+            csvData[currentTrail].push("Trail " + currentTrail + "\n");
+            csvData[currentTrail].push("GuideX, GuideY, MouseX, MouseY\n");
+            
             coordinate.forEach(coord => {
-                csvData += coord.join(",") + "\n";
+                csvData[currentTrail].push(coord.join(",") + "\n");
             });
-            csvData += "\n";
-            csvData += "Trail " + currentTrail + " ParticleX,ParticleY\n"; // 添加轨迹号到标题中
-            particleTrail[currentTrail].forEach(trail => {
-                csvData += trail.join(",") + "\n";
-            });
+
+
+            // 重置變數
+            coordinate = [];
+            currentTrail++;
+            if (currentTrail > maxTrail) currentTrail = 1;
         }
     }, 1000);
-
-    // 重置變數
-    coordinates = [];
-    currentTrail++;
-    recording = false;
-    document.getElementById('recordButton').style.display = 'block';
 }
 
 function saveToCSV(){ 
-	// 觸發下載
-    // let encodedUri = encodeURI(csvContent);
+    let csvString = "data:text/csv;charset=utf-8,";
+    for (let trail = 1; trail <= maxTrail; trail++) {
+        if (csvData[trail]) {
+            csvData[trail].forEach(line => {
+                csvString += line;
+            });
+            csvString += "\n"; // 換行
+        }
+    }
 
-    let encodedUri = encodeURI(csvData);
+	// 觸發下載
+    let encodedUri = encodeURI(csvString);
     let link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", "data.csv");
     document.body.appendChild(link);
-    link.click();
+    link.click();   
     document.body.removeChild(link);
 
-    currentTrail = [];
+    currentTrail = 1;
     saveData = false;
+    csvData = [];
 }
