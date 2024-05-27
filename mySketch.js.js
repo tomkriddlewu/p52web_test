@@ -93,9 +93,9 @@ function setup() {
 
     centerX = width / 2;
     centerY = height / 2;
-    radius = 450;
+    radius = 300;
 
-    for (let i = 0; i < 6000; i++) {
+    for (let i = 0; i < 3000; i++) {
         let angle = random(TWO_PI);
         let r = radius * sqrt(random());
         let x = centerX + r * cos(angle);
@@ -127,7 +127,7 @@ function draw() {
         let t = elapsedTime / duration;
 
         // Calculate spiral position
-        let radius = lerp(400, 90, t);
+        let radius = lerp(250, 90, t);
         let angle = TWO_PI * 10 * t; // 10 full rotations in 10 seconds
 
         // Calculate x and y based on radius and angle
