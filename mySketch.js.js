@@ -4,7 +4,7 @@ let saveData = false;
 let timerInterval;
 let particles = [];
 let startTime;
-let duration = 10000;
+let duration = 50000;
 let timeInterval;
 let centerX, centerY, radius;
 let currentTrail = 1;
@@ -163,7 +163,7 @@ function startRecording() {
     
 
     //  增加計時器
-    let countdown = 10;
+    let countdown = 50;
     const timer = document.getElementById('timer');
     timer.textContent = countdown;
     
