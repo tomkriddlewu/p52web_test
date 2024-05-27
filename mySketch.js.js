@@ -95,7 +95,7 @@ function setup() {
     centerY = height / 2;
     radius = 300;
 
-    for (let i = 0; i < 3000; i++) {
+    for (let i = 0; i < 1000; i++) {
         let angle = random(TWO_PI);
         let r = radius * sqrt(random());
         let x = centerX + r * cos(angle);
